@@ -2,6 +2,8 @@ import json
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
+from CanvasAPy.models.api import Courses
+
 
 ##################
 # Help functions #
@@ -74,9 +76,8 @@ class CanvasAPI:
             # Try to make the call and return the urllib.response object.
             return urlopen(request)
         except HTTPError as e:
-            # Catch any HTTP Errors as they occur.
-            print('HTTP Error: {}, {}'.format(e.code, e.msg))
-        return None
+            # Raise any HTTP Errors as they occur.
+            raise e
 
     def pages(self, url, absolute=False, verbose=False):
         """
@@ -111,7 +112,7 @@ class CanvasAPI:
                 # If we didn't find a 'Link' header, stop.
                 break
 
-    def all(self, url, absolute=False, verbose=False):
+    def call(self, url, absolute=False, verbose=False):
         """
         :param url: string, the url for the request.
         e.g "courses" or "https://www.canvas-lms.com/api/v1/courses"
@@ -124,6 +125,11 @@ class CanvasAPI:
         results = []
         # Read all of the pages of results from this API call.
         for pg in self.pages(url, absolute, verbose):
-            json_lst = read_body(pg)
-            results += json_lst
+            body = read_body(pg)
+            if not isinstance(body, list):
+                body = [body]
+            results += body
         return results
+
+    def courses(self):
+        return Courses(self)
