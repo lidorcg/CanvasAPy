@@ -1,0 +1,6 @@
+# CanvasAPy
+Work in progress...
+Right now there is the API object that gets the server and a token and can make calls to the api and return response.
+Partial ORM for courses.
+
+might not finish it just coding what i need...
