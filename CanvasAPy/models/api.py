@@ -9,8 +9,8 @@ class Courses:
         courses = self.api.call('courses')
         return [Course(crs, self.api) for crs in courses]
 
-    def get(self, id):
-        course = self.api.call('courses/{}'.format(id))[0]
+    def get(self, _id):
+        course = self.api.call('courses/{}'.format(_id))[0]
         return Course(course, self.api)
 
     def new(self, json):

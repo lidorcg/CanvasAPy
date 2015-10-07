@@ -6,6 +6,9 @@ class Model:
     def get(self, param):
         return self.json[param]
 
+    def set(self, param, val):
+        self.json[param] = val
+
 
 class Course(Model):
     def save(self):

@@ -45,6 +45,7 @@ class CanvasAPI:
         """
         self.server_address = server_address
         self.token = token
+        self.Courses = Courses(self)
 
     def api_request(self, url, absolute=False, verbose=False):
         """
@@ -130,6 +131,3 @@ class CanvasAPI:
                 body = [body]
             results += body
         return results
-
-    def courses(self):
-        return Courses(self)
