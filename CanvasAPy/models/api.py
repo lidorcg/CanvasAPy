@@ -6,13 +6,15 @@ class Courses:
         self.api = api
 
     def all(self):
-        courses = self.api.call('courses')
+        courses = self.api.get_all('courses')
         return [Course(crs, self.api) for crs in courses]
 
     def get(self, _id):
-        course = self.api.call('courses/{}'.format(_id))[0]
+        course = self.api.get('courses/{}'.format(_id)).json()
         return Course(course, self.api)
 
-    def new(self, json):
+    def new(self, name):
+        params = {'course': {'name': name}}
+        course = self.api.post('accounts/1/courses', params)
         # ToDo call the api with the json needed and return the course from the response
-        pass
+        return Course(course, self.api)

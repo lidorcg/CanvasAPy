@@ -1,6 +1,4 @@
-import json
-from urllib.error import HTTPError
-from urllib.request import Request, urlopen
+import requests
 
 from CanvasAPy.models.api import Courses
 
@@ -22,15 +20,6 @@ def find_link(links, rel):
             return next_url.strip('<>')
 
 
-def read_body(response):
-    """
-    :param response:
-    :return:
-    """
-    body = response.read().decode('utf-8')
-    return json.loads(body)
-
-
 ##############
 # Main class #
 ##############
@@ -47,7 +36,7 @@ class CanvasAPI:
         self.token = token
         self.Courses = Courses(self)
 
-    def api_request(self, url, absolute=False, verbose=False):
+    def get(self, url, absolute=False, verbose=False):
         """
         :param url: string, the url for the request.
         e.g "courses" or "https://www.canvas-lms.com/api/v1/courses"
@@ -70,13 +59,15 @@ class CanvasAPI:
         # Print to standard out only if verbose == True.
         if verbose:
             print('Attempting to retrieve {} ...'.format(request_url))
-        # Create the request, adding in the oauth authorization token
-        request = Request(url=request_url, headers={'Authorization': ' Bearer {}'.format(self.token)})
+        # Create the request, adding in the oauth authorization token and Content-Type header
+
+        headers = {'Authorization': 'Bearer {}'.format(self.token),
+                   'Content-Type': 'application/json'}
 
         try:
             # Try to make the call and return the urllib.response object.
-            return urlopen(request)
-        except HTTPError as e:
+            return requests.get(request_url, headers=headers)
+        except requests.HTTPError as e:
             # Raise any HTTP Errors as they occur.
             raise e
 
@@ -92,14 +83,14 @@ class CanvasAPI:
         # Make the initial call to the API to retrieve the first page.
         while True:
             # call the API to retrieve the page.
-            response = self.api_request(url, absolute, verbose)
+            response = self.get(url, absolute, verbose)
             # Send back the page if it's not None.
             if response:
                 yield response
             else:
                 break
             # Check if there are more pages of results.
-            header = response.getheader('Link')
+            header = response.headers.get('Link')
             # If there is a 'Link' header, then search for a 'next' link.
             if header:
                 # All the links are separated by commas.
@@ -113,7 +104,7 @@ class CanvasAPI:
                 # If we didn't find a 'Link' header, stop.
                 break
 
-    def call(self, url, absolute=False, verbose=False):
+    def get_all(self, url, absolute=False, verbose=False):
         """
         :param url: string, the url for the request.
         e.g "courses" or "https://www.canvas-lms.com/api/v1/courses"
@@ -126,8 +117,5 @@ class CanvasAPI:
         results = []
         # Read all of the pages of results from this API call.
         for pg in self.pages(url, absolute, verbose):
-            body = read_body(pg)
-            if not isinstance(body, list):
-                body = [body]
-            results += body
+            results += pg.json()
         return results
