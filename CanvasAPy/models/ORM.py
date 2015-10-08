@@ -1,12 +1,35 @@
 class API:
-    def __init__(self, api):
+    def __init__(self, api, model):
         self.api = api
+        self.model = model
+        self.url = None
+
+    def all(self):
+        objects = self.api.get_all(self.url.format(''))
+        return [self.model(obj, self.api, self.url) for obj in objects]
+
+    def get(self, _id):
+        obj = self.api.get(self.url.format(_id)).json()
+        return self.model(obj, self.api, self.url)
+
+    def new(self, name):
+        obj = self.api.post(self.url.format(''), self.new_data(name)).json()
+        return self.model(obj, self.api, self.url)
+
+    def delete(self, _id):
+        return self.api.delete(self.url.format(_id))
+
+    def new_data(self, name):
+        pass
 
 
 class Model:
     def __init__(self, json, api):
         self.api = api
         self.json = json
+        self.url = None
+        self.update_data = None
+        self.delete_data = None
 
     def __str__(self):
         return '{}: {}'.format(self['id'], self['name'])
@@ -20,85 +43,48 @@ class Model:
     def __setitem__(self, key, value):
         self.json[key] = value
 
-
-class Course(Model):
-    def __init__(self, json, api):
-        super().__init__(json, api)
-        self.Modules = self.Modules(api, self)
-
     def update(self):
-        url = 'courses/{}'.format(self['id'])
-        data = {'course': self.json}
-        return self.api.put(url, data)
+        return self.api.put(self.url, self.update_data)
 
     def delete(self):
-        url = 'courses/{}'.format(self['id'])
-        data = {'event': 'delete'}
-        return self.api.delete(url, data)
-
-    class Modules(API):
-        def __init__(self, api, course):
-            super().__init__(api)
-            self.course = course
-
-        def all(self):
-            url = 'courses/{}/modules'.format(self.course['id'])
-            modules = self.api.get_all(url)
-            return [Module(mdl, self.api, self.course) for mdl in modules]
-
-        def get(self, _id):
-            url = 'courses/{}/modules/{}'.format(self.course['id'], _id)
-            module = self.api.get(url).json()
-            return Module(module, self.api, self.course)
-
-        def new(self, name):
-            url = 'courses/{}/modules'.format(self.course['id'])
-            data = {'module': {'name': name}}
-            module = self.api.post(url, data).json()
-            return Module(module, self.api, self.course)
-
-        def delete(self, _id):
-            url = 'courses/{}/modules/{}'.format(self.course['id'], _id)
-            return self.api.delete(url)
+        return self.api.delete(self.url, self.delete_data)
 
 
 class Account(Model):
     def __init__(self, json, api):
         super().__init__(json, api)
-        self.Courses = self.Courses(api, self)
+        self.url = 'accounts/{}'.format(self['id'])
+        self.Courses = self.Courses(api, self.url, self['id'])
 
     class Courses(API):
-        def __init__(self, api, account):
-            super().__init__(api)
-            self.account = account
+        def __init__(self, api, url, account_id):
+            super().__init__(api, Course)
+            self.url = url + '/courses/{}'
+            self.account_id = account_id
 
-        def all(self):
-            url = 'accounts/{}/courses'.format(self.account['id'])
-            courses = self.api.get_all(url)
-            return [Course(crs, self.api) for crs in courses]
+        def new_data(self, name):
+            return {'account_id': self.account_id, 'course': {'name': name}}
 
-        def get(self, _id):
-            url = 'accounts/{}/courses/{}'.format(self.account['id'], _id)
-            course = self.api.get(url).json()
-            return Course(course, self.api)
 
-        def new(self, name):
-            url = 'accounts/{}/courses'.format(self.account['id'])
-            data = {'account_id': self.account['id'], 'course': {'name': name}}
-            course = self.api.post(url, data).json()
-            return Course(course, self.api)
+class Course(Model):
+    def __init__(self, json, api, url):
+        super().__init__(json, api)
+        self.url = 'courses/{}'.format(self['id'])
+        self.update_data = {'course': self.json}
+        self.delete_data = {'event': 'delete'}
+        self.Modules = self.Modules(api, self.url)
+
+    class Modules(API):
+        def __init__(self, api, url):
+            super().__init__(api, Module)
+            self.url = url + '/modules/{}'
+
+        def new_data(self, name):
+            return {'module': {'name': name}}
 
 
 class Module(Model):
-    def __init__(self, json, api, course):
+    def __init__(self, json, api, url):
         super().__init__(json, api)
-        self.course = course
-
-    def update(self):
-        url = 'courses/{}/modules/{}'.format(self.course['id'], self['id'])
-        data = {'module': self.json}
-        return self.api.put(url, data)
-
-    def delete(self):
-        url = 'courses/{}/modules/{}'.format(self.course['id'], self['id'])
-        return self.api.delete(url)
+        self.url = url.format(self['id'])
+        self.update_data = {'module': self.json}

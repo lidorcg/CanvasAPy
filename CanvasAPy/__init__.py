@@ -58,12 +58,8 @@ class CanvasAPI:
             request_url = self.address + url
 
         # Try to make the call and return the urllib.response object.
-        response = requests.get(request_url, headers=self.headers)
-        if response.status_code < 400:
-            return response
-        else:
-            # Raise any HTTP Errors as they occur.
-            raise Exception('response status {}'.format(response.status_code))
+        print('GET: ' + self.address + url)
+        return requests.get(request_url, headers=self.headers)
 
     def pages(self, url, absolute=False):
         """
@@ -119,12 +115,8 @@ class CanvasAPI:
         :return:
         """
         # Try to make the call and return the urllib.response object.
-        response = requests.post(self.address + url, json=data, headers=self.headers)
-        if response.status_code < 400:
-            return response
-        else:
-            # Raise any HTTP Errors as they occur.
-            raise Exception('response status {}'.format(response.status_code))
+        print('POST: ' + self.address + url)
+        return requests.post(self.address + url, json=data, headers=self.headers)
 
     def put(self, url, data=None):
         """
@@ -133,12 +125,8 @@ class CanvasAPI:
         :return:
         """
         # Try to make the call and return the urllib.response object.
-        response = requests.put(self.address + url, json=data, headers=self.headers)
-        if response.status_code < 400:
-            return response
-        else:
-            # Raise any HTTP Errors as they occur.
-            raise Exception('response status {}'.format(response.status_code))
+        print('PUT: ' + self.address + url)
+        return requests.put(self.address + url, json=data, headers=self.headers)
 
     def delete(self, url, data=None):
         """
@@ -147,9 +135,5 @@ class CanvasAPI:
         :return:
         """
         # Try to make the call and return the urllib.response object.
-        response = requests.delete(self.address + url, json=data, headers=self.headers)
-        if response.status_code < 400:
-            return response
-        else:
-            # Raise any HTTP Errors as they occur.
-            raise Exception('response status {}'.format(response.status_code))
+        print('DELETE: ' + self.address + url)
+        return requests.delete(self.address + url, json=data, headers=self.headers)
