@@ -11,6 +11,9 @@ class Model:
     def __str__(self):
         return '{}: {}'.format(self['id'], self['name'])
 
+    def __repr__(self):
+        return str(self)
+
     def __getitem__(self, item):
         return self.json[item]
 
@@ -41,18 +44,18 @@ class Course(Model):
         def all(self):
             url = 'courses/{}/modules'.format(self.course['id'])
             modules = self.api.get_all(url)
-            return [Module(mdl, self.api, self) for mdl in modules]
+            return [Module(mdl, self.api, self.course) for mdl in modules]
 
         def get(self, _id):
             url = 'courses/{}/modules/{}'.format(self.course['id'], _id)
             module = self.api.get(url).json()
-            return Module(module, self.api, self)
+            return Module(module, self.api, self.course)
 
         def new(self, name):
-            url = 'courses/{}/modules '.format(self.course['id'])
-            data = {' module': {'name': name}}
+            url = 'courses/{}/modules'.format(self.course['id'])
+            data = {'module': {'name': name}}
             module = self.api.post(url, data).json()
-            return Module(module, self.api, self)
+            return Module(module, self.api, self.course)
 
         def delete(self, _id):
             url = 'courses/{}/modules/{}'.format(self.course['id'], _id)

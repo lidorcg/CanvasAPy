@@ -57,12 +57,13 @@ class CanvasAPI:
         else:
             request_url = self.address + url
 
-        try:
-            # Try to make the call and return the urllib.response object.
-            return requests.get(request_url, headers=self.headers)
-        except requests.HTTPError as e:
+        # Try to make the call and return the urllib.response object.
+        response = requests.get(request_url, headers=self.headers)
+        if response.status_code < 400:
+            return response
+        else:
             # Raise any HTTP Errors as they occur.
-            raise e
+            raise Exception('response status {}'.format(response.status_code))
 
     def pages(self, url, absolute=False):
         """
@@ -117,12 +118,13 @@ class CanvasAPI:
         :param data:
         :return:
         """
-        try:
-            # Try to make the call and return the urllib.response object.
-            return requests.post(self.address + url, json=data, headers=self.headers)
-        except requests.HTTPError as e:
+        # Try to make the call and return the urllib.response object.
+        response = requests.post(self.address + url, json=data, headers=self.headers)
+        if response.status_code < 400:
+            return response
+        else:
             # Raise any HTTP Errors as they occur.
-            raise e
+            raise Exception('response status {}'.format(response.status_code))
 
     def put(self, url, data=None):
         """
@@ -130,12 +132,13 @@ class CanvasAPI:
         :param data:
         :return:
         """
-        try:
-            # Try to make the call and return the urllib.response object.
-            return requests.put(self.address + url, json=data, headers=self.headers)
-        except requests.HTTPError as e:
+        # Try to make the call and return the urllib.response object.
+        response = requests.put(self.address + url, json=data, headers=self.headers)
+        if response.status_code < 400:
+            return response
+        else:
             # Raise any HTTP Errors as they occur.
-            raise e
+            raise Exception('response status {}'.format(response.status_code))
 
     def delete(self, url, data=None):
         """
@@ -143,9 +146,10 @@ class CanvasAPI:
         :param data:
         :return:
         """
-        try:
-            # Try to make the call and return the urllib.response object.
-            return requests.delete(self.address + url, json=data, headers=self.headers)
-        except requests.HTTPError as e:
+        # Try to make the call and return the urllib.response object.
+        response = requests.delete(self.address + url, json=data, headers=self.headers)
+        if response.status_code < 400:
+            return response
+        else:
             # Raise any HTTP Errors as they occur.
-            raise e
+            raise Exception('response status {}'.format(response.status_code))
