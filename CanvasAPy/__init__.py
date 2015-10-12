@@ -1,6 +1,6 @@
 import requests
 
-from CanvasAPy.models import Accounts, Courses
+from CanvasAPy.models import Accounts
 
 
 ##################
@@ -33,14 +33,13 @@ class CanvasAPI:
         :return: CanvasAPI object
         """
         # save the api address for all future requests
-        self.address = 'http://{}/api/v1/'.format(server_address)
+        self.address = 'http://{}/api/v1'.format(server_address)
         # create the headers for all future requests
         # adding in the oauth authorization token and Content-Type header
         self.headers = {'Authorization': 'Bearer {}'.format(token),
                         'Content-Type': 'application/json'}
         # API Objects
         self.Accounts = Accounts(self)
-        self.Courses = Courses(self)
 
     def get(self, url, absolute=False):
         """
