@@ -56,9 +56,12 @@ class CanvasAPI:
         else:
             request_url = self.address + url
 
-        # Try to make the call and return the urllib.response object.
-        print('GET: ' + self.address + url)
-        return requests.get(request_url, headers=self.headers)
+        # GET request to the url
+        response = requests.get(request_url, headers=self.headers)
+        # raise any errors
+        response.raise_for_status()
+        # return response
+        return response
 
     def pages(self, url, absolute=False):
         """
@@ -113,9 +116,12 @@ class CanvasAPI:
         :param data:
         :return:
         """
-        # Try to make the call and return the urllib.response object.
-        print('POST: ' + self.address + url)
-        return requests.post(self.address + url, json=data, headers=self.headers)
+        # POST request to the url
+        response = requests.post(self.address + url, json=data, headers=self.headers)
+        # raise any errors
+        response.raise_for_status()
+        # return response
+        return response
 
     def put(self, url, data=None):
         """
@@ -123,9 +129,12 @@ class CanvasAPI:
         :param data:
         :return:
         """
-        # Try to make the call and return the urllib.response object.
-        print('PUT: ' + self.address + url)
-        return requests.put(self.address + url, json=data, headers=self.headers)
+        # PUT request to the url
+        response = requests.put(self.address + url, json=data, headers=self.headers)
+        # raise any errors
+        response.raise_for_status()
+        # return response
+        return response
 
     def delete(self, url, data=None):
         """
@@ -133,6 +142,9 @@ class CanvasAPI:
         :param data:
         :return:
         """
-        # Try to make the call and return the urllib.response object.
-        print('DELETE: ' + self.address + url)
-        return requests.delete(self.address + url, json=data, headers=self.headers)
+        # DELETE request to the url
+        response = requests.delete(self.address + url, json=data, headers=self.headers)
+        # raise any errors
+        response.raise_for_status()
+        # return response
+        return response
