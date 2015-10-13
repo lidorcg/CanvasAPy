@@ -39,7 +39,7 @@ class CanvasAPI:
         self.headers = {'Authorization': 'Bearer {}'.format(token),
                         'Content-Type': 'application/json'}
         # API Objects
-        self.Accounts = Accounts(self)
+        self.Accounts = Accounts(self, '', None)
 
     def get(self, url, absolute=False):
         """
