@@ -103,12 +103,58 @@ class Assignments(API):
         self._new_data = lambda x: {'assignment': x}
 
 
+class ModuleAssignments:
+    def __init__(self, course_assignments, module_items):
+        self._course_assignments = course_assignments
+        self._module_items = module_items
+
+    def all(self):
+        items = self._module_items.all()
+        return [itm for itm in items if itm['type'] == 'Assignment']
+
+    def get(self, pk):
+        itm = self._module_items.get(pk)
+        if itm['type'] == 'Assignment':
+            return itm
+
+    def new(self, name):
+        crs_tsk = self._course_assignments.new({'name': name})
+        mdl_itm = self._module_items.new({'type': 'Assignment', 'content_id': crs_tsk['id']})
+        return mdl_itm
+
+    def delete(self, pk):
+        return self._module_items.delete(pk)
+
+
 class Quizzes(API):
     def __init__(self, api, url, parent):
         super().__init__(api, url, parent)
         self._url += '/quizzes/{}'
         self._model = Quiz
-        self._new_data = lambda x: {' quiz': x}
+        self._new_data = lambda x: {'quiz': x}
+
+
+class ModuleQuizzes:
+    def __init__(self, course_quizzes, module_items):
+        self._course_quizzes = course_quizzes
+        self._module_items = module_items
+
+    def all(self):
+        items = self._module_items.all()
+        return [itm for itm in items if itm['type'] == 'Quiz']
+
+    def get(self, pk):
+        itm = self._module_items.get(pk)
+        if itm['type'] == 'Quiz':
+            return itm
+
+    def new(self, title):
+        crs_qwz = self._course_quizzes.new({'title': title})
+        mdl_itm = self._module_items.new({'type': 'Quiz', 'content_id': crs_qwz['id']})
+        return mdl_itm
+
+    def delete(self, pk):
+        return self._module_items.delete(pk)
 
 
 class Model:
@@ -167,6 +213,8 @@ class Module(Model):
         self._update_data = lambda: {'module': self._json}
         self.Items = ModuleItems(self._api, self._url(), self)
         self.Pages = ModulePages(parent.Pages, self.Items)
+        self.Assignments = ModuleAssignments(parent.Assignments, self.Items)
+        self.Quizzes = ModuleQuizzes(parent.Quizzes, self.Items)
 
 
 class ModuleItem(Model):
