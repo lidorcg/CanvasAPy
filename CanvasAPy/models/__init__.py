@@ -86,8 +86,8 @@ class ModulePages:
         if itm['type'] == 'Page':
             return itm
 
-    def new(self, title):
-        crs_pg = self._course_pages.new({'title': title})
+    def new(self, item):
+        crs_pg = self._course_pages.new(item)
         mdl_itm = self._module_items.new({'type': 'Page', 'page_url': crs_pg['url']})
         return mdl_itm
 
@@ -117,8 +117,8 @@ class ModuleAssignments:
         if itm['type'] == 'Assignment':
             return itm
 
-    def new(self, name):
-        crs_tsk = self._course_assignments.new({'name': name})
+    def new(self, item):
+        crs_tsk = self._course_assignments.new(item)
         mdl_itm = self._module_items.new({'type': 'Assignment', 'content_id': crs_tsk['id']})
         return mdl_itm
 
@@ -148,8 +148,8 @@ class ModuleQuizzes:
         if itm['type'] == 'Quiz':
             return itm
 
-    def new(self, title):
-        crs_qwz = self._course_quizzes.new({'title': title})
+    def new(self, item):
+        crs_qwz = self._course_quizzes.new(item)
         mdl_itm = self._module_items.new({'type': 'Quiz', 'content_id': crs_qwz['id']})
         return mdl_itm
 
