@@ -1,3 +1,4 @@
+# API interface
 class API:
     def __init__(self, api, url, parent):
         self._api = api
@@ -157,6 +158,7 @@ class ModuleQuizzes:
         return self._module_items.delete(pk)
 
 
+# API models
 class Model:
     def __init__(self, json, api, parent):
         self._json = json
