@@ -8,5 +8,5 @@ setup(
     license='',
     author='lidorcg',
     author_email='',
-    description=''
+    description='', requires=['requests']
 )

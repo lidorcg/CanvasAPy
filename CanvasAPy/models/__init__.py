@@ -49,6 +49,38 @@ class Courses(API):
         return self._api.delete('/courses/{}'.format(pk), self._delete_data)
 
 
+class Pages(API):
+    def __init__(self, api, url, parent):
+        super().__init__(api, url, parent)
+        self._url += '/pages/{}'
+        self._model = Page
+        self._new_data = lambda x: {'wiki_page': x}
+
+
+class Assignments(API):
+    def __init__(self, api, url, parent):
+        super().__init__(api, url, parent)
+        self._url += '/assignments/{}'
+        self._model = Assignment
+        self._new_data = lambda x: {'assignment': x}
+
+
+class Quizzes(API):
+    def __init__(self, api, url, parent):
+        super().__init__(api, url, parent)
+        self._url += '/quizzes/{}'
+        self._model = Quiz
+        self._new_data = lambda x: {'quiz': x}
+
+
+class Folders(API):
+    def __init__(self, api, url, parent):
+        super().__init__(api, url, parent)
+        self._url += '/folders/{}'
+        self._model = Folder
+        self._new_data = lambda x: x
+
+
 class Modules(API):
     def __init__(self, api, url, parent):
         super().__init__(api, url, parent)
@@ -65,14 +97,6 @@ class ModuleItems(API):
         self._new_data = lambda x: {'module_item': x}
 
 
-class Pages(API):
-    def __init__(self, api, url, parent):
-        super().__init__(api, url, parent)
-        self._url += '/pages/{}'
-        self._model = Page
-        self._new_data = lambda x: {'wiki_page': x}
-
-
 class ModulePages:
     def __init__(self, course_pages, module_items):
         self._course_pages = course_pages
@@ -80,28 +104,25 @@ class ModulePages:
 
     def all(self):
         items = self._module_items.all()
-        return [itm for itm in items if itm['type'] == 'Page']
+        pages = [itm for itm in items if itm['type'] == 'Page']
+        for pg in pages:
+            pg.content = self._course_pages.get(pg['page_url'])
+        return pages
 
     def get(self, pk):
         itm = self._module_items.get(pk)
         if itm['type'] == 'Page':
+            itm.content = self._course_pages.get(itm['page_url'])
             return itm
 
     def new(self, item):
         crs_pg = self._course_pages.new(item)
         mdl_itm = self._module_items.new({'type': 'Page', 'page_url': crs_pg['url']})
+        mdl_itm.content = crs_pg
         return mdl_itm
 
     def delete(self, pk):
         return self._module_items.delete(pk)
-
-
-class Assignments(API):
-    def __init__(self, api, url, parent):
-        super().__init__(api, url, parent)
-        self._url += '/assignments/{}'
-        self._model = Assignment
-        self._new_data = lambda x: {'assignment': x}
 
 
 class ModuleAssignments:
@@ -111,28 +132,25 @@ class ModuleAssignments:
 
     def all(self):
         items = self._module_items.all()
-        return [itm for itm in items if itm['type'] == 'Assignment']
+        assignments = [itm for itm in items if itm['type'] == 'Assignment']
+        for ass in assignments:
+            ass.content = self._course_assignments.get(ass['content_id'])
+        return assignments
 
     def get(self, pk):
         itm = self._module_items.get(pk)
         if itm['type'] == 'Assignment':
+            itm.content = self._course_assignments.get(itm['content_id'])
             return itm
 
     def new(self, item):
         crs_tsk = self._course_assignments.new(item)
         mdl_itm = self._module_items.new({'type': 'Assignment', 'content_id': crs_tsk['id']})
+        mdl_itm.content = crs_tsk
         return mdl_itm
 
     def delete(self, pk):
         return self._module_items.delete(pk)
-
-
-class Quizzes(API):
-    def __init__(self, api, url, parent):
-        super().__init__(api, url, parent)
-        self._url += '/quizzes/{}'
-        self._model = Quiz
-        self._new_data = lambda x: {'quiz': x}
 
 
 class ModuleQuizzes:
@@ -142,16 +160,21 @@ class ModuleQuizzes:
 
     def all(self):
         items = self._module_items.all()
-        return [itm for itm in items if itm['type'] == 'Quiz']
+        quizzes = [itm for itm in items if itm['type'] == 'Quiz']
+        for qwz in quizzes:
+            qwz.content = self._course_quizzes.get(qwz['content_id'])
+        return quizzes
 
     def get(self, pk):
         itm = self._module_items.get(pk)
         if itm['type'] == 'Quiz':
+            itm.content = self._course_quizzes.get(itm['content_id'])
             return itm
 
     def new(self, item):
         crs_qwz = self._course_quizzes.new(item)
         mdl_itm = self._module_items.new({'type': 'Quiz', 'content_id': crs_qwz['id']})
+        mdl_itm.content = crs_qwz
         return mdl_itm
 
     def delete(self, pk):
@@ -206,27 +229,7 @@ class Course(Model):
         self.Pages = Pages(self._api, self._url(), self)
         self.Assignments = Assignments(self._api, self._url(), self)
         self.Quizzes = Quizzes(self._api, self._url(), self)
-
-
-class Module(Model):
-    def __init__(self, json, api, url, parent):
-        super().__init__(json, api, parent)
-        self._url = lambda: url.format(self['id'])
-        self._update_data = lambda: {'module': self._json}
-        self.Items = ModuleItems(self._api, self._url(), self)
-        self.Pages = ModulePages(parent.Pages, self.Items)
-        self.Assignments = ModuleAssignments(parent.Assignments, self.Items)
-        self.Quizzes = ModuleQuizzes(parent.Quizzes, self.Items)
-
-
-class ModuleItem(Model):
-    def __init__(self, json, api, url, parent):
-        super().__init__(json, api, parent)
-        self._url = lambda: url.format(self['id'])
-        self._update_data = lambda: {'module_item': self._json}
-
-    def __str__(self):
-        return '{}: {}'.format(self['type'], self['title'])
+        self.Folders = Folders(self._api, self._url(), self)
 
 
 class Page(Model):
@@ -251,3 +254,32 @@ class Quiz(Model):
         super().__init__(json, api, parent)
         self._url = lambda: url.format(self['id'])
         self._update_data = lambda: {'quiz': self._json}
+
+
+class Folder(Model):
+    def __init__(self, json, api, _, parent):
+        super().__init__(json, api, parent)
+        self._url = lambda: '/folders/{}'.format(self['id'])
+        self._update_data = lambda: self._json
+
+
+class Module(Model):
+    def __init__(self, json, api, url, parent):
+        super().__init__(json, api, parent)
+        self._url = lambda: url.format(self['id'])
+        self._update_data = lambda: {'module': self._json}
+        self.Items = ModuleItems(self._api, self._url(), self)
+        self.Pages = ModulePages(parent.Pages, self.Items)
+        self.Assignments = ModuleAssignments(parent.Assignments, self.Items)
+        self.Quizzes = ModuleQuizzes(parent.Quizzes, self.Items)
+
+
+class ModuleItem(Model):
+    def __init__(self, json, api, url, parent):
+        super().__init__(json, api, parent)
+        self._url = lambda: url.format(self['id'])
+        self._update_data = lambda: {'module_item': self._json}
+        self.content = None
+
+    def __str__(self):
+        return '{}: {}'.format(self['type'], self['title'])

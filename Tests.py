@@ -74,8 +74,26 @@ qwz.update()
 print('destroy')
 qwz.delete()
 
+# ToDo fix folders
+# print('Test REST for Folders')
+# print('create')
+# fdr = crs.Folders.new({'name': 'Test_Folder'})
+# print('read')
+# assert len(crs.Folders.all()) > 0
+# fdr = crs.Folders.get(fdr['id'])
+# print('update')
+# fdr['name'] = 'Test_Folder_new_name'
+# fdr.update()
+# print('destroy')
+# qwz.delete()
+
 print('teardown')
 mdl.delete()
 crs.delete()
 
 print('Done Testing!')
+
+
+crs = lid.Courses.all()[0]
+mdl = crs.Modules.all()[0]
+pg = mdl.Pages.all()[0]
