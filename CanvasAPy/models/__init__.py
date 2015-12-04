@@ -1,3 +1,6 @@
+# ToDo add documentation
+
+
 # API interface
 class API:
     def __init__(self, api, url, parent):
@@ -79,6 +82,10 @@ class Folders(API):
         self._url += '/folders/{}'
         self._model = Folder
         self._new_data = lambda x: x
+        self._delete_data = {'force': 'true'}
+
+    def delete(self, pk):
+        return self._api.delete('/folders/{}'.format(pk), self._delete_data)
 
 
 class Modules(API):

@@ -20,9 +20,9 @@ def find_link(links, rel):
             return next_url.strip('<>')
 
 
-##############
-# Main class #
-##############
+##################
+# Main API Class #
+##################
 class CanvasAPI:
     def __init__(self, server_address, token):
         """
@@ -33,6 +33,7 @@ class CanvasAPI:
         :return: CanvasAPI object
         """
         # save the api address for all future requests
+        # ToDo change http -> https on production
         self.address = 'http://{}/api/v1'.format(server_address)
         # create the headers for all future requests
         # adding in the oauth authorization token and Content-Type header
