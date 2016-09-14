@@ -1,8 +1,9 @@
 # ToDo add documentation
+# ToDo add files API
 
 
-# API interface
-class API:
+# Collections interface
+class Collection:
     def __init__(self, api, url, parent):
         self._api = api
         self._url = url
@@ -27,7 +28,7 @@ class API:
         return self._api.delete(self._url.format(pk), self._delete_data)
 
 
-class Accounts(API):
+class Accounts(Collection):
     def __init__(self, api, url, parent):
         super().__init__(api, url, parent)
         self._model = Account
@@ -40,7 +41,7 @@ class Accounts(API):
         raise Exception("You can't delete account from this API!")
 
 
-class Courses(API):
+class Courses(Collection):
     def __init__(self, api, url, parent):
         super().__init__(api, url, parent)
         self._url += '/courses/{}'
@@ -52,7 +53,7 @@ class Courses(API):
         return self._api.delete('/courses/{}'.format(pk), self._delete_data)
 
 
-class Pages(API):
+class Pages(Collection):
     def __init__(self, api, url, parent):
         super().__init__(api, url, parent)
         self._url += '/pages/{}'
@@ -60,7 +61,7 @@ class Pages(API):
         self._new_data = lambda x: {'wiki_page': x}
 
 
-class Assignments(API):
+class Assignments(Collection):
     def __init__(self, api, url, parent):
         super().__init__(api, url, parent)
         self._url += '/assignments/{}'
@@ -68,7 +69,7 @@ class Assignments(API):
         self._new_data = lambda x: {'assignment': x}
 
 
-class Quizzes(API):
+class Quizzes(Collection):
     def __init__(self, api, url, parent):
         super().__init__(api, url, parent)
         self._url += '/quizzes/{}'
@@ -76,7 +77,7 @@ class Quizzes(API):
         self._new_data = lambda x: {'quiz': x}
 
 
-class Folders(API):
+class Folders(Collection):
     def __init__(self, api, url, parent):
         super().__init__(api, url, parent)
         self._url += '/folders/{}'
@@ -88,7 +89,7 @@ class Folders(API):
         return self._api.delete('/folders/{}'.format(pk), self._delete_data)
 
 
-class Modules(API):
+class Modules(Collection):
     def __init__(self, api, url, parent):
         super().__init__(api, url, parent)
         self._url += '/modules/{}'
@@ -96,7 +97,7 @@ class Modules(API):
         self._new_data = lambda x: {'module': x}
 
 
-class ModuleItems(API):
+class ModuleItems(Collection):
     def __init__(self, api, url, parent):
         super().__init__(api, url, parent)
         self._url += '/items/{}'
@@ -188,7 +189,7 @@ class ModuleQuizzes:
         return self._module_items.delete(pk)
 
 
-# API models
+# Models Interface
 class Model:
     def __init__(self, json, api, parent):
         self._json = json
